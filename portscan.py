@@ -1,49 +1,63 @@
-#!/usr/bin/env python
+#!/usr/bin/python
+
+from threading import *
 from socket import *
-import sys, time
-from datetime import datetime
+import optparse
 
-host = ''
-max_port = 5000
-min_port = 1
+screenLock = Semaphore(value=1)
 
-def scan_host(host, port, r_code = 1):
-    try:
-        s = socket(AF_INET, SOCK_STREAM)
+def connScan(tgtHost, tgtPort):
+	try:
+		connSkt = socket(AF_INET, SOCK_STREAM)
+		connSkt.connect((tgtHost, tgtPort))
+		connSkt.send('hello\r\n')
 
-        code = s.connect_ex((host, port))
+		results = connSkt.recv(100)
+		screenLock.acquire()
+		print "[+]" + str(tgtPort) + "/tcp open"
+	except:
+		screenLock.acquire()
+		print "[-]" + str(tgtPort) + "/tcp closed"
+	finally:
+		screenLock.release()
+		connSkt.close()
 
-        if code == 0:
-            r_code = code
-        s.close()
-    except Exception, e:
-        pass
+def portScan(tgtHost, tgtPorts):
+	try:
+		tgtIP = gethostbyname(tgtHost)
+	except:
+		print "[-] Cannot resolve" + tgtHost + ":Unknown host"
+		return
 
-    return r_code
+	try:
+		tgtName = gethostbyaddr(tgtIP)
+		print "\n[+] Scan Results for: " + tgtName[0]
+	except:
+		print "\n[+] Scan Results for: " + tgtIP
 
-try:
-    host = raw_input("[*] Enter Target Host Address: ")
-except KeyboardInterrupt:
-    print("\n\n[*] User Requested An Interrupt.")
-    print("[*] Application Shutting Down.")
-    sys.exit(1)
+	setdefaulttimeout(1)
+	for tgtPort in tgtPorts:
+		t = Thread(target=connScan, args=(tgtHost, int(tgtPort)))
+		t.start()
 
-hostip = gethostbyname(host)
-print("\n [*] Host: %s IP: %s" % (host, hostip))
-print("[*] Scanning Started At %s...\n" % (time.strftime("%H:%M:%S")))
-start_time = datetime.now()
+def Main():
+	parser = optparse.OptionParser('usage %prog -H <target host> '+\
+		'-P <target port>')
+	parser.add_option('-H', dest='tgtHost', type='string', \
+		help='specify target host')
+	parser.add_option('-P', dest='tgtPort', type='string', \
+		help='specify target port[s] seperated by a comma')
+	(options, args) = parser.parse_args()
+	if (options.tgtHost == None) | (options.tgtPort == None):
+		print parser.usage
+		exit(0)
+	else:
+		tgtHost = options.tgtHost
+		tgtPorts = str(options.tgtPort).split(',')
+	
+	portScan(tgtHost, tgtPorts)
 
-for port in range(min_port, max_port):
-    try:
-        response = scan_host(host, port)
+if __name__ == '__main__':
+	Main()
 
-        if response == 0:
-            print("[*] Port %d: Open" % (port))
-    except Exception, e:
-        pass
 
-stop_time = datetime.now()
-total_time_duration = stop_time - start_time
-print("\n[*] Scanning Finished At %s ..." % (time.strftime("%H:%M:%S")))
-print("[*] Scanning Duration: %s ..." % (total_time_duration))
-print("[*] Holla")
