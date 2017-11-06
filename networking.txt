@@ -1,0 +1,34 @@
+networking
+
+client - server
+peer to peer models
+
+Sockets are programming abstractions for connections. 
+
+Allow for bidirectional traffic
+
+can send/recv data 
+
+Socket Methods - these are the important elements of the socket module
+
+https://docs.python.org/2/library/socket.html
+
+import socket
+
+socket(socket_family, socket_type) #creates a socket
+
+AF_INET = ipv4
+SOCK_STREAM = TCP
+SOCK_DGRAM = UDP
+SOCK_RAW = raw packets
+
+bind((hostname,port)) #takes a tuple of a host address and port
+
+listen()
+	starts listening for TCP connections
+
+accept()
+	Accepts a connection when found (new socket)
+
+
+

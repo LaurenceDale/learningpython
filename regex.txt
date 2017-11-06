@@ -1,0 +1,49 @@
+Regular expressions are for finding frequent patterns within a data set. 
+Most languages support regex. 
+
+The DFA algorithm works with regex. 
+
+Metacharacters
+
+. matchets any single character. 
+	eg:  ".at" will match cat, hat, sat
+
+[] matches single character contained within the brackets	eg: "[ch]at" would match cat, hat but not sat. You can use ranges too ie [a-z] would match all letters.
+
+[^ ] matches single character NOT in the brackets
+
+^ matches expression at start of string		eg: "^.at" would match cat, hat, sat if located at start of string
+
+$ same as above but END of string
+
+() Contains sub expressions (BODMAS)
+
+* Matches preceeding element zero or more times 	eg: "c.*" would match any word starting with c.
+
+
+Python gives us two methods to regex with
+
+match() checks to see if the expression matches the string
+
+search() checks if there is a match anywhere in the string. 
+
+Regtest.py!
+
+Option flags
+
+re.I - ignore case matching
+re.M - Makes $ match the end of line and ^ match start of line
+re.S - Makes . match any character even new line
+re.U interprets in Unicode
+re.X ignores whitespace 
+
+search and replace also useful
+
+sub()   (substitute)
+
+sub(pattern, repl, string, max=0)
+
+
+
+
+
